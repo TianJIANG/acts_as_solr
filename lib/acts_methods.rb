@@ -157,7 +157,16 @@ module ActsAsSolr #:nodoc:
     #                 class Author < ActiveRecord::Base
     #                   acts_as_solr :auto_commit => false
     #                 end
-    # 
+    #
+    # use_after_commit:: When enabled, trigger index update after the commit of a transaction.
+    #                    It is needed when the index updated is called in an asynchronous process. 
+    #                    This option rely on Nick Muerdter's after_commit plugin.
+    #
+    #                     class Author < ActiveRecord::Base
+    #                       acts_as_solr :use_after_commit => true
+    #                     end
+    #
+
     def acts_as_solr(options={}, solr_options={})
       
       extend ClassMethods
@@ -177,7 +186,8 @@ module ActsAsSolr #:nodoc:
         :facets => nil,
         :boost => nil,
         :if => "true",
-        :offline => false
+        :offline => false,
+        :use_after_commit => false
       }  
       self.solr_configuration = {
         :type_field => "type_s",
@@ -191,9 +201,15 @@ module ActsAsSolr #:nodoc:
       
       configuration[:solr_fields] = {}
       configuration[:solr_includes] = {}
-      
-      after_save    :solr_save
-      after_destroy :solr_destroy
+
+      if configuration[:use_after_commit]
+        after_commit_on_create  :solr_save
+        after_commit_on_update  :solr_save
+        after_commit_on_destroy :solr_destroy
+      else
+        after_save    :solr_save
+        after_destroy :solr_destroy
+      end
 
       if configuration[:fields].respond_to?(:each)
         process_fields(configuration[:fields])
