@@ -39,6 +39,8 @@ module ActsAsSolr #:nodoc:
     #          query:: The queries to be included in the faceted search (Solr's facet.query)
     #          zeros:: Display facets with count of zero. (true|false)
     #          sort:: Sorts the faceted resuls by highest to lowest count. (true|false)
+    #          limit:: Maximun number of faceted results to return. (Solr's facet.limit)
+    #                  By default it return all the results.
     #          browse:: This is where the 'drill-down' of the facets work. Accepts an array of
     #                   fields in the format "facet_field:term"
     # 

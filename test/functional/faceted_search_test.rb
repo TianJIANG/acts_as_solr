@@ -102,6 +102,12 @@ class FacetedSearchTest < Test::Unit::TestCase
                                           "A-DATA Technology Inc." => 1,
                                           "Apple Computer Inc." => 1}}, records.facets['facet_fields'])
   end
+
+  # Faceted searches with :limit and :sort options turned on
+  def test_faceted_search_using_limit_and_sort
+    records = Electronic.find_by_solr "memory", :facets => {:sort => true, :limit => 2, :fields =>[:category]}
+    assert_equal({"category_facet"=>{"Memory"=>2, "Electronics"=>1}}, records.facets['facet_fields'])
+  end
   
   # Faceted search with 'drill-down' option being passed.
   # The :browse option receives the argument in the format:
